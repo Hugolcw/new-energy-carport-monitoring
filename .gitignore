@@ -119,3 +119,12 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+
+# Python
+__pycache__/
+*.py[cod]
+server/__pycache__/
+
+# AI Models (防止上传大文件导致推送到一半失败)
+*.pt
+*.onnx

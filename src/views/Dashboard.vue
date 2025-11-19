@@ -79,7 +79,7 @@ const solarStatus = ref(true)
 const windControl = ref(true)
 const mainPower = ref(true)
 const systemOnline = ref(true)
-const videoStreamUrl = ref('/api/video/stream')
+const videoStreamUrl = ref('http://localhost:5000/video_feed')
 
 // 时间显示
 const currentTime = ref('')

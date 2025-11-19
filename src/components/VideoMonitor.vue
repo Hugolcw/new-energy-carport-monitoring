@@ -17,34 +17,47 @@
     
     <div class="video-container">
       <div class="video-screen" :class="{ active: isActive }">
-        <div class="video-placeholder" v-if="!isStreamActive">
-          <div class="placeholder-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <div class="placeholder-text">等待视频流...</div>
-        </div>
         
-        <div class="video-overlay" v-if="isStreamActive">
-          <div class="overlay-info">
-            <div class="timestamp">{{ currentTime }}</div>
-            <div class="location">车棚监控 #1</div>
-          </div>
-          <div class="overlay-status">
-            <div class="quality-indicator">
-              <span class="quality-dot"></span>
-              <span class="quality-text">高清</span>
+        <div v-if="isStreamActive" style="width: 100%; height: 100%; position: relative;">
+          <img 
+            :src="streamUrl" 
+            style="width: 100%; height: 100%; object-fit: cover; display: block;"
+          />
+          
+          <div class="scan-line" :class="{ active: isActive }"></div>
+          
+          <div class="video-overlay">
+            <div class="overlay-info">
+              <div class="timestamp">{{ currentTime }}</div>
+              <div class="location">AI 实时火情监测</div>
+            </div>
+            <div class="overlay-status">
+               <div class="quality-indicator">
+                  <span class="quality-dot"></span>
+                  <span class="quality-text">LIVE</span>
+               </div>
             </div>
           </div>
         </div>
-        
-        <div class="scan-line" :class="{ active: isActive }"></div>
+
+        <div class="video-placeholder" v-else>
+          <div class="placeholder-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="placeholder-text">点击播放开启 AI 监控</div>
+        </div>
+
       </div>
     </div>
 
     <div class="video-controls">
+      <select v-model="selectedCamera" @change="handleCameraChange" class="camera-select">
+        <option v-for="cam in cameraList" :key="cam.id" :value="cam.id">
+          {{ cam.name }}
+        </option>
+      </select>
       <button class="control-btn" @click="toggleStream" :class="{ active: isStreamActive }">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" v-if="!isStreamActive">
           <polygon points="5 3 19 12 5 21 5 3" stroke-width="2"/>
@@ -73,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 interface Props {
   streamUrl: string
@@ -101,11 +114,54 @@ const toggleRecord = () => {
 
 const takeSnapshot = () => {
   console.log('截图功能触发')
-  // 这里可以实现实际的截图功能
 }
+
+// 新增状态
+const cameraList = ref<{id: number, name: string}[]>([])
+const selectedCamera = ref(0)
+
+// 获取摄像头列表
+const fetchCameras = async () => {
+  try {
+    const res = await fetch('http://localhost:5000/api/cameras')
+    const data = await res.json()
+    cameraList.value = data
+    if (data.length > 0) {
+      selectedCamera.value = data[0].id
+    }
+  } catch (e) {
+    console.error('无法获取摄像头列表', e)
+    // 兜底：如果后端还没好，默认给个 0 和 1
+    cameraList.value = [
+        { id: 0, name: '默认摄像头 (Index 0)' },
+        { id: 1, name: '外接摄像头 (Index 1)' }
+    ]
+  }
+}
+
+// 切换摄像头
+const handleCameraChange = async () => {
+  try {
+    await fetch('http://localhost:5000/api/switch_camera', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ index: selectedCamera.value })
+    })
+    console.log('切换指令已发送')
+    // 刷新一下图片流防止卡顿 (可选小技巧：给URL加个时间戳)
+  } catch (e) {
+    console.error('切换失败', e)
+  }
+}
+
+// 初始化时获取列表
+onMounted(() => {
+  fetchCameras()
+})
 </script>
 
 <style scoped>
+/* 这里保持你原有的样式不变，可以直接复用以前的 */
 .video-card {
   position: relative;
   overflow: hidden;
@@ -229,6 +285,7 @@ const takeSnapshot = () => {
   align-items: flex-start;
   padding: 12px;
   background: linear-gradient(135deg, rgba(0,0,0,0.3), transparent);
+  pointer-events: none; /* 防止遮挡点击 */
 }
 
 .overlay-info {
@@ -281,6 +338,7 @@ const takeSnapshot = () => {
   background: linear-gradient(90deg, transparent, #06b6d4, transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .scan-line.active {
@@ -357,7 +415,6 @@ const takeSnapshot = () => {
   }
 }
 
-/* 响应式调整 */
 @media (max-width: 768px) {
   .video-screen {
     height: 200px;
@@ -370,5 +427,18 @@ const takeSnapshot = () => {
   .control-btn {
     justify-content: center;
   }
+}
+
+.camera-select {
+  background: var(--bg-secondary);
+  color: #e2e8f0;
+  border: 2px solid #475569;
+  padding: 10px;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+}
+.camera-select:hover {
+  border-color: #06b6d4;
 }
 </style>
