@@ -1,0 +1,15 @@
+# Backend Python dependencies (pinned suggestions)
+# These versions are chosen to be compatible with the code in `server/app.py` as of 2025-11-22.
+# Note: `torch` (PyTorch) MUST be installed separately following the official PyTorch installation
+# guide because it depends on the target CUDA toolkit. See environment.yml for instructions.
+
+flask==2.2.5
+flask-cors==3.0.10
+opencv-python==4.7.0.72
+ultralytics==8.0.134
+numpy==1.24.3
+
+# Optional (recommended) - do NOT include in pip requirements if you will install via conda
+# For CPU-only testing you can install a CPU-only wheel, or install a CUDA-enabled wheel as appropriate.
+# Example (install manually):
+# pip install torch --index-url https://download.pytorch.org/whl/cu121
