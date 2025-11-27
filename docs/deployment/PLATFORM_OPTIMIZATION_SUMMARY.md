@@ -72,3 +72,4 @@ python3 app_edge.py raspberry_pi
 **版本**: v2.0 (边缘设备优化版)  
 **更新日期**: 2024-11-22
 
+

@@ -22,3 +22,4 @@ echo "使用设备配置: $DEVICE_TYPE"
 export DEVICE_TYPE=$DEVICE_TYPE
 python3 app_edge.py $DEVICE_TYPE
 
+

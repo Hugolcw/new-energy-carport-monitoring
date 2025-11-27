@@ -6,3 +6,4 @@ echo "启动海思芯片优化版本..."
 export DEVICE_TYPE=hisilicon
 python3 app_edge.py hisilicon
 
+
