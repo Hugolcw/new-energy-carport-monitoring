@@ -1,0 +1,26 @@
+# Consolidated backend dependency list (merged from `requirements.txt` and `environment.yml`)
+# Notes:
+# - `torch` (PyTorch) must be installed separately because the wheel depends on your CUDA / platform.
+#   Use the official selector at https://pytorch.org to pick the correct install command.
+# - The versions below are tested with the repository as of 2025-11-22.
+
+flask==2.2.5
+flask-cors==3.0.10
+opencv-python==4.7.0.72
+ultralytics==8.0.134
+numpy==1.24.3
+psutil>=5.9.0
+
+# Optional / recommended (install as needed):
+# torchvision - optional helper for some model utilities
+# pillow - image utilities
+torch           # INSTALL MANUALLY: see project notes and https://pytorch.org
+torchvision     # optional - install matching torch wheel
+pillow
+
+# Example install sequence (WSL / Linux):
+# conda create -n fire_detect python=3.10 -y
+# conda activate fire_detect
+# pip install -r server/requirements-merged.txt
+# Then install torch according to your platform, e.g. (CPU-only):
+# pip install torch --index-url https://download.pytorch.org/whl/cpu
