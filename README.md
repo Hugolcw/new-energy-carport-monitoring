@@ -56,9 +56,21 @@ pip install -r requirements.txt  # 若项目无 requirements.txt，请手动 pip
 # （如需）下载模型权重（项目可能提供脚本或将权重置于 server/ 目录）
 python download_model.py
 
-# 启动后端服务
+# 安装依赖
+pip install -r requirements.txt
+
+# 启动后端服务（推荐使用边缘设备优化版）
+# 方式1: 自动检测设备类型
+./scripts/start_auto.sh
+
+# 方式2: 直接运行
+python app_edge.py
+
+# 方式3: 使用原始版本
 python app.py
 ```
+
+**边缘设备部署**: 查看 [docs/deployment/EDGE_DEPLOYMENT.md](docs/deployment/EDGE_DEPLOYMENT.md)
 
 默认后端服务地址：`http://0.0.0.0:5000`，视频流或 API 会在该地址暴露相应路由。
 
@@ -75,23 +87,36 @@ npm run dev
 
 ## 模型与加速说明
 - 默认使用 CPU 运行 YOLOv8（兼容性好），但如需更高帧率请安装对应 CUDA 版本的 `torch`。参考 PyTorch 官网获取适配命令。
-- 模型文件：`server/fire_m.pt`（若缺失，请运行 `download_model.py` 或从项目文档指定 URL 下载）。
+- 模型文件：应放在 `server/models/` 目录（如 `fire_m.pt`、`yolov8n.pt`）
+- **边缘设备优化**: 使用 `app_edge.py` 可自动检测设备类型并优化性能
 
-## 项目结构（重要文件）
+## 项目结构
 
 ```
 .
 ├── server/                # 后端：Flask 服务与模型
-│   ├── app.py
-│   ├── download_model.py
-│   └── fire_m.pt
+│   ├── app.py             # 原始版本
+│   ├── app_edge.py        # 边缘设备优化版本（推荐）
+│   ├── app_optimized.py   # 通用优化版本
+│   ├── device_config.py   # 设备配置和检测
+│   ├── models/            # AI模型文件目录
+│   │   ├── fire_m.pt
+│   │   └── yolov8n.pt
+│   └── scripts/           # 启动脚本
+│       ├── start_auto.sh
+│       └── ...
 ├── src/                   # 前端：Vue 应用
 │   ├── components/        # 关键组件（VideoMonitor 等）
 │   └── views/Dashboard.vue
+├── docs/                  # 文档目录
+│   ├── deployment/        # 部署文档
+│   ├── optimization/      # 优化文档
+│   └── compatibility/     # 兼容性文档
 ├── package.json
-├── vite.config.ts
-└── README_GENERATED.md    # （本文件）
+└── vite.config.ts
 ```
+
+**详细结构说明**: 查看 [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 
 ## 常见问题
 - Q: 后端启动失败提示缺少模块？

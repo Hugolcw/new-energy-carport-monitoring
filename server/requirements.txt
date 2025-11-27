@@ -8,6 +8,7 @@ flask-cors==3.0.10
 opencv-python==4.7.0.72
 ultralytics==8.0.134
 numpy==1.24.3
+psutil>=5.9.0  # 用于资源监控和设备检测（边缘设备版本需要）
 
 # Optional (recommended) - do NOT include in pip requirements if you will install via conda
 # For CPU-only testing you can install a CPU-only wheel, or install a CUDA-enabled wheel as appropriate.
