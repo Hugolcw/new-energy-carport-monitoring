@@ -56,3 +56,6 @@ htmlcov/
 
 # Documentation builds
 docs/_build/
+# Ignore model weights
+server/models/*.pt
+*.pt
